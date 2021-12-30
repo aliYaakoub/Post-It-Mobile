@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "postItMobile",
-    "slug": "postItMobile",
-    "version": "1.0.0",
+    "name": "post-It-Mobile",
+    "slug": "post-it-mobile",
+    "version": "1.2.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/postit.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/post-it-transparent.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,12 +21,15 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/postit.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.powerBain.postItMobile",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": ""
   }
 }
