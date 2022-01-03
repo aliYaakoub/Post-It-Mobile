@@ -200,17 +200,19 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
                     onPress={()=>handleDelete()}
                 />)
             }
-            <View style={styles.header}>
-                <GetProfilePic username={post.username} />
-                <View style={{paddingHorizontal: 15}}>
-                    <Text style={{fontSize: 20, color: '#000', fontWeight: '600'}}>{post.username}</Text>
-                    {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).format('DD, MMM YYYY')}</Text> */}
-                    {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('day').fromNow()}</Text> */}
-                    {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('hour').fromNow()}</Text> */}
-                    <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('minute').fromNow()}</Text>
-                    {/* <Text style={{color: '#666'}}>{moment('December 30, 2021 12:00 AM').startOf('minute').fromNow()}</Text> */}
+            <TouchableOpacity onPress={() => navigation.navigate('selecteduserscreen', {username: post.username})}>
+                <View style={styles.header}>
+                    <GetProfilePic username={post.username} />
+                    <View style={{paddingHorizontal: 15}}>
+                        <Text style={{fontSize: 20, color: '#000', fontWeight: '600'}}>{post.username}</Text>
+                        {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).format('DD, MMM YYYY')}</Text> */}
+                        {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('day').fromNow()}</Text> */}
+                        {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('hour').fromNow()}</Text> */}
+                        <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('minute').fromNow()}</Text>
+                        {/* <Text style={{color: '#666'}}>{moment('December 30, 2021 12:00 AM').startOf('minute').fromNow()}</Text> */}
+                    </View>
                 </View>
-            </View>
+            </TouchableOpacity>
             {post.content !== '' && 
                 <View>
                     <AppText style={styles.postContent}>{post.content}</AppText>

@@ -12,6 +12,7 @@ import AppText from './app/components/GeneralComponents/AppText';
 import Screen from './app/components/GeneralComponents/Screen';
 import defaultStyles from './app/config/defaultStyles';
 import AppButton from './app/components/GeneralComponents/AppButton';
+import selectedUserScreen from './app/components/screens/selectedUserScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ export default function App() {
                     <Stack.Screen name='main' component={MainScreen} />
                     <Stack.Screen name='loginscreen' component={LogInScreen} />
                     <Stack.Screen name='signupscreen' component={SignUpScreen} />
+                    <Stack.Screen name='selecteduserscreen' component={selectedUserScreen} />
                   </Stack.Navigator>
                 </NavigationContainer>
             </AuthProvider>

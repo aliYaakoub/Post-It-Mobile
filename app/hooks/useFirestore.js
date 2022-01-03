@@ -14,8 +14,8 @@ const useFirestore = (col, order) =>{
                     documents.push({...doc.data(), id: doc.id})
                 });
                 setDocs(documents);
+                setLoading(false)
             })
-        setLoading(false)
         return () => unsub();
     }, [col, order])
 
