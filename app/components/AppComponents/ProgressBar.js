@@ -3,9 +3,9 @@ import useStorage from '../../hooks/useStorage'
 import { Alert, View } from 'react-native';
 import defaultStyles from '../../config/defaultStyles';
 
-const ProgressBar = ({file, setImage, extension, setFile, path, username, userId = false, setContent = false, content=false, type=false}) => {
+const ProgressBar = ({file, setImage, extension, setFile, path, posterId, userId = false, setContent = false, content=false, type=false}) => {
 
-    const { url, progress } = useStorage(file, extension, path, username, content, type, userId);
+    const { url, progress } = useStorage(file, extension, path, posterId, content, type, userId);
     console.log(progress, url);
     
     useEffect(()=>{

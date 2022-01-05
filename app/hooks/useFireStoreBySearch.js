@@ -1,15 +1,17 @@
 import {useState, useEffect} from 'react'
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { auth, projectFireStore } from '../firebase/config';
+import { projectFireStore } from '../firebase/config';
+import { useAuth } from './../contexts/AuthContext';
 
 const useFirestoreBySearch = (col, user) =>{
     const [docs, setDocs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { currentUser } = useAuth()
 
     useEffect(()=>{
         let q;
-        if(user === 'AuthUser' && auth.currentUser){
-            q = query(collection(projectFireStore, col), where("username", "==", auth.currentUser.email.split('@')[0]));
+        if(user === 'AuthUser' && currentUser){
+            q = query(collection(projectFireStore, col), where("username", "==", currentUser.id));
         }
         else{
             q = query(collection(projectFireStore, col), where("username", "==", user));

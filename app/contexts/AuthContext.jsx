@@ -8,7 +8,7 @@ import {
     updatePassword, 
     updateEmail 
 } from '@firebase/auth';
-import { collection, addDoc, deleteDoc, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, setDoc, updateDoc, arrayUnion, arrayRemove, getDoc, where } from '@firebase/firestore';
 import { projectFireStore, projectStorage } from '../firebase/config';
 import { Timestamp } from '@firebase/firestore';
 import { ref, deleteObject } from '@firebase/storage';
@@ -23,9 +23,24 @@ export function AuthProvider({children}) {
 
     const [currentUser, setCurrentUser] = useState(null)
     const [loading, setLoading] = useState(true);
+    const [changes, setChanges] = useState(0)
 
     async function signup(email, password){
-        return createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(projectFireStore, 'users', auth.currentUser.uid), {
+            email: auth.currentUser.email,
+            username: auth.currentUser.email.split('@')[0]
+        })
+    }
+
+    function getUserData(id){
+        return getDoc(doc(projectFireStore, 'users', id));
+    }
+
+    async function changeUsername(id, newUsername){
+        return updateDoc(doc(projectFireStore, 'users', id),{
+            username: newUsername
+        })
     }
 
     async function login(email, password){
@@ -48,9 +63,9 @@ export function AuthProvider({children}) {
         return updatePassword(currentUser, password)
     }
 
-    function postContent(username, content){
+    function postContent(posterId, content){
         const collectionRef = collection(projectFireStore, 'posts');
-        return addDoc(collectionRef, {username: username, content: content, timeStamp: Timestamp.now(), likes: [], comments: []})
+        return addDoc(collectionRef, {posterId: posterId, content: content, timeStamp: Timestamp.now(), likes: [], comments: []})
     }
 
     async function deletePost(id, fileName){
@@ -66,14 +81,21 @@ export function AuthProvider({children}) {
         }
     }
 
-    function uploadComment(username, content, postId){
-        // const collectionRef = collection(projectFireStore, 'comments');
-        // return addDoc(collectionRef, {username, content, postId, timeStamp: Timestamp.now()})
+    function generateId(num){
+        const randomArray = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for(let i=0; i<num; i++){
+            result += randomArray[Math.floor(Math.random()*(randomArray.length - 1))];
+        }
+        return result;
+    }
 
+    function uploadComment(posterId, content, postId){
         const postRef = doc(projectFireStore, 'posts', postId);
         return updateDoc(postRef, {
             comments: arrayUnion({
-                username, 
+                id: generateId(15),
+                posterId, 
                 content, 
                 postId, 
                 timeStamp: Timestamp.now()
@@ -81,36 +103,48 @@ export function AuthProvider({children}) {
         })
     }
 
-    function deleteComment(id){
-        return deleteDoc(doc(projectFireStore,'comments',id));
-    }
+    // function deleteComment(postId, commentId){
+    //     // return deleteDoc(doc(projectFireStore,'comments',id));
+    //     const collectionRef = doc(projectFireStore, 'posts', postId);
+    //     return updateDoc(collectionRef, {
+    //         comments: arrayRemove({id: commentId})
+    //     })
+    // }
 
-    async function likePost(username, postId){
+    async function likePost(id, postId){
 
         const collectionRef = doc(projectFireStore, 'posts', postId);
         const docSnap = await getDoc(collectionRef);
 
         if(docSnap.exists()){
-            if(docSnap.data().likes.includes(username)){
+            if(docSnap.data().likes.includes(id)){
                 return updateDoc(collectionRef, {
-                    likes: arrayRemove(username)
+                    likes: arrayRemove(id)
                 })
             }
         }
 
         return updateDoc(collectionRef, {
-            likes: arrayUnion(username)
+            likes: arrayUnion(id)
         })
     }
 
     useEffect(()=>{
-        const unsub = onAuthStateChanged(auth, (user)=>{
-            setCurrentUser(user);
-            setLoading(false);
+        const unsub = onAuthStateChanged(auth, (currentUser)=>{
+            if(currentUser){
+                async function getUser(){
+                const user = await getDoc(doc(projectFireStore, 'users', currentUser.uid));
+                return setCurrentUser({id: user.id, ...user.data()});
+                }
+                getUser()
+                setLoading(false);
+            }
+            else{
+                setCurrentUser(null)
+            }
         })
-
         return unsub;
-    }, [])
+    }, [changes])
 
     const value = {
         currentUser: loading ? null : currentUser,
@@ -123,8 +157,11 @@ export function AuthProvider({children}) {
         postContent,
         deletePost,
         uploadComment,
-        deleteComment,
+        // deleteComment,
         likePost,
+        changeUsername,
+        getUserData,
+        setChanges,
     }
 
     return (

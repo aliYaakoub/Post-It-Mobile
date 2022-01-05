@@ -35,7 +35,7 @@ const NewPostScreen = () => {
                 return Alert.alert('post is too large to upload')
             }
             try{
-                await postContent(currentUser.email.split('@')[0], content)
+                await postContent(currentUser.id, content)
                 Alert.alert('post uploaded successfully')
                 setContent('');
             }
@@ -74,7 +74,7 @@ const NewPostScreen = () => {
                         setImage={setImage}
                         content={content}
                         setContent={setContent}
-                        username={currentUser.email.split('@')[0]}
+                        posterId={currentUser.id}
                         type={file.type}
                     />}
                     <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>

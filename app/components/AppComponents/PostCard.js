@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native'
 import { Video } from 'expo-av';
 import moment from 'moment'
 
-import GetProfilePic from '../GetProfilePic'
 import { useAuth } from '../../contexts/AuthContext'
 import AppText from '../GeneralComponents/AppText'
 import Comment from './Comment'
@@ -15,7 +14,7 @@ import defaultStyles from '../../config/defaultStyles'
 
 const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
 
-    const { currentUser, likePost, uploadComment, deletePost } = useAuth();
+    const { currentUser, likePost, uploadComment, deletePost, getUserData } = useAuth();
 
     const [errMsg, setErrMsg] = useState('')
     const [showComments, setShowComments] = useState(false);
@@ -25,6 +24,7 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
     const videoRef = useRef(null);
     const [status, setStatus] = useState({});
     const [commentsLoading, setCommentsLoading] = useState(true)
+    const [user, setUser] = useState('')
 
     const navigation = useNavigation();
 
@@ -41,7 +41,7 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
         setErrMsg('')
         if(currentUser){
             try{
-                await likePost(currentUser.email.split('@')[0], post.id);
+                await likePost(currentUser.id, post.id);
             }
             catch(err){
                 // console.error(err);
@@ -78,11 +78,11 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
         }
         try{
             setLoading(true);
-            await uploadComment(currentUser.email.split('@')[0], comment, post.id)
+            await uploadComment(currentUser.id, comment, post.id)
             setComment('')
         }
         catch(err){
-            // console.error(err);
+            console.error(err);
             Alert.alert('could not upload comment')
         }
         setLoading(false)
@@ -187,11 +187,19 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
         setCommentsLoading(false)
     }, [post.comments])
 
+    useEffect(() => {
+        const getUser = async () => {
+            const userToGet = await getUserData(post.posterId);
+            setUser(userToGet.data());
+        }
+        getUser();
+    }, [getUserData, post.posterId])
+
     return (
         <View style={styles.postContainer}>
             {
                 currentUser &&
-                (currentUser.email.split('@')[0] === post.username &&
+                (currentUser.id === post.posterId &&
                 <MaterialIcons 
                     name="delete" 
                     size={30} 
@@ -200,11 +208,15 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
                     onPress={()=>handleDelete()}
                 />)
             }
-            <TouchableOpacity onPress={() => navigation.navigate('selecteduserscreen', {username: post.username})}>
+            <TouchableOpacity onPress={() => navigation.navigate('selecteduserscreen', {username: post.posterId})}>
                 <View style={styles.header}>
-                    <GetProfilePic username={post.username} />
+                    {user && user.attachment ?
+                        <View style={styles.container}>
+                            <Image style={{width: 50, height: 50}} source={{uri: user.attachment.file}} />
+                        </View>
+                    : null}
                     <View style={{paddingHorizontal: 15}}>
-                        <Text style={{fontSize: 20, color: '#000', fontWeight: '600'}}>{post.username}</Text>
+                        <Text style={{fontSize: 20, color: '#000', fontWeight: '600'}}>{user && user.username}</Text>
                         {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).format('DD, MMM YYYY')}</Text> */}
                         {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('day').fromNow()}</Text> */}
                         {/* <Text style={{color: '#666'}}>{moment(post.timeStamp.toDate()).startOf('hour').fromNow()}</Text> */}
@@ -221,7 +233,7 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
             {handleAttachment()}
             <View style={styles.likesAndComments}>
                 <View style={styles.like}>
-                    {currentUser && post.likes.includes(currentUser.email.split('@')[0]) ? 
+                    {currentUser && post.likes.includes(currentUser.id) ? 
                         <AntDesign name="like1" size={28} onPress={()=>handleLike()} color="black" />
                         :
                         <AntDesign name="like2" size={28} onPress={()=>handleLike()} color="black" />
@@ -230,7 +242,7 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
                 </View>
                 <View style={styles.like}>
                     <FontAwesome name="comments" size={28} color="black" onPress={()=>setShowComments(!showComments)} />
-                    <AppText style={{paddingHorizontal: 15}} >{comments.length}</AppText>
+                    <AppText style={{paddingHorizontal: 15}} >{post.comments.length}</AppText>
                 </View>
             </View>
             {errMsg ? 
@@ -261,11 +273,12 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
                             :
                             <FlatList
                                 style={{marginTop: 20}}
-                                data={comments.sort((a,b)=>( b.timeStamp - a.timestamp ))}
+                                // data={comments.sort((a,b)=>( b.timeStamp - a.timestamp ))}
+                                data={comments}
                                 keyExtractor={(item)=>item.id}
                                 ItemSeparatorComponent={ListItemsSeperator}
                                 renderItem={({item})=>(
-                                    <Comment data={item}/>
+                                    <Comment data={item} post={post}/>
                                 )}
                             />
                     }
@@ -293,6 +306,11 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
 export default PostCard
 
 const styles = StyleSheet.create({
+    container: {
+        borderRadius: 25,
+        overflow: 'hidden',
+        backgroundColor: 'black'
+    },
     postContainer: {
         width: '100%',
         padding: 10,
