@@ -10,7 +10,7 @@ import useFirestoreBySearch from './../../hooks/useFireStoreBySearch';
 
 const selectedUserScreen = ({route}) => {
 
-    const { docs, loading } = useFirestoreBySearch('posts', route.params.username)
+    const { docs, loading } = useFirestoreBySearch('posts', route.params.posterId)
 
     const [featuredPost, setFeaturedPost] = useState('')
     const [videoPlaying, setVideoPlaying] = useState('');

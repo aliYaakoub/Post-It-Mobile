@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/postit.png",
     "splash": {
-      "image": "./assets/post-it-transparent.png",
+      "image": "./assets/1.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

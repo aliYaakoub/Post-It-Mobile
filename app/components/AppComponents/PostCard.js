@@ -208,7 +208,7 @@ const PostCard = ({post, setFeaturedPost, setVideoPlaying, videoPlaying}) => {
                     onPress={()=>handleDelete()}
                 />)
             }
-            <TouchableOpacity onPress={() => navigation.navigate('selecteduserscreen', {username: post.posterId})}>
+            <TouchableOpacity onPress={() => navigation.navigate('selecteduserscreen', {posterId: post.posterId})}>
                 <View style={styles.header}>
                     {user && user.attachment ?
                         <View style={styles.container}>

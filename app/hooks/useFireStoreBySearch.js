@@ -11,10 +11,10 @@ const useFirestoreBySearch = (col, user) =>{
     useEffect(()=>{
         let q;
         if(user === 'AuthUser' && currentUser){
-            q = query(collection(projectFireStore, col), where("username", "==", currentUser.id));
+            q = query(collection(projectFireStore, col), where("posterId", "==", currentUser.id));
         }
         else{
-            q = query(collection(projectFireStore, col), where("username", "==", user));
+            q = query(collection(projectFireStore, col), where("posterId", "==", user));
         }
         const unsub = onSnapshot(q, (snap)=>{
                 let documents = [];
