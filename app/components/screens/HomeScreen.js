@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, ScrollView, View, TouchableWithoutFeedback, Text, Modal, Image } from 'react-native'
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
@@ -7,14 +7,17 @@ import useFirestore from '../../hooks/useFirestore'
 import Screen from '../GeneralComponents/Screen';
 import PostCard from '../AppComponents/PostCard';
 import AppText from '../GeneralComponents/AppText';
+import { useAuth } from './../../contexts/AuthContext';
 
 const HomeScreen = () => {
 
     const [order, setOrder] = useState('desc')
     const [featuredPost, setFeaturedPost] = useState('')
     const [videoPlaying, setVideoPlaying] = useState('');
+    const [user, setUser] = useState(null);
 
     const { docs, loading } = useFirestore('posts', order);
+    const { getUserData } = useAuth()
 
     function handleSorting(){
         if(order === 'desc'){
@@ -24,6 +27,14 @@ const HomeScreen = () => {
             setOrder('desc')
         }
     }
+
+    useEffect(() => {
+        const getUser = async () => {
+            const userToGet = await getUserData(featuredPost.posterId);
+            setUser(userToGet.data());
+        }
+        getUser();
+    }, [getUserData, featuredPost.posterId])
 
     return (
         <Screen style={styles.screen}>
@@ -74,7 +85,7 @@ const HomeScreen = () => {
                             <Image source={{uri: featuredPost.attachment.file}} style={{borderRadius: 5, width: '100%', height: '100%', resizeMode: "contain"}} />
                         </View>
                         <View style={{backgroundColor: '#00000099', paddingHorizontal: 15, paddingVertical: 25, position: 'absolute', right: 0, bottom: 0, width: '100%'}}>
-                            <AppText style={{color: 'white', paddingBottom: 10}}>Posted By {featuredPost.username}</AppText>
+                            <AppText style={{color: 'white', paddingBottom: 10}}>Posted By {user && user.username}</AppText>
                             <Text numberOfLines={5} ellipsizeMode='tail' style={{color: 'white'}}>{featuredPost.content}</Text>
                         </View>
                     </>

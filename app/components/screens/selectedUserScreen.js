@@ -83,4 +83,10 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: 'white'
     },
+    exitIcon: {
+        position: 'absolute', 
+        top: 5, 
+        right: 5, 
+        zIndex: 50
+    }
 })

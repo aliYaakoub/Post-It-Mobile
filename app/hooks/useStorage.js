@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { projectStorage, projectFireStore } from '../firebase/config';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
-import { collection, addDoc, Timestamp, getDoc, doc } from '@firebase/firestore';
+import { collection, addDoc, Timestamp, getDoc, doc, setDoc, updateDoc } from '@firebase/firestore';
 import { Alert } from 'react-native';
 
 const useStorage = (file, extension, path, posterId, content, type, userId) =>{
@@ -59,7 +59,7 @@ const useStorage = (file, extension, path, posterId, content, type, userId) =>{
                 //     await deleteObject(imageRef)
                 // }
                 // await setDoc(doc(projectFireStore, 'profile-pictures', userId), {
-                //     username: username, 
+                //     posterId: posterId, 
                 //     attachment: {
                 //         file: url, 
                 //         fileName: `${fileName}.${extension}`
@@ -75,7 +75,7 @@ const useStorage = (file, extension, path, posterId, content, type, userId) =>{
                     await updateDoc(doc(projectFireStore, 'users', userId),{
                         attachment: {
                             file: url, 
-                            fileName: `${fileName}.${file.type.split('/')[1]}`
+                            fileName: `${fileName}.${extension}`
                         },
                     })
                 }

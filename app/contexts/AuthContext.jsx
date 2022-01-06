@@ -103,6 +103,12 @@ export function AuthProvider({children}) {
         })
     }
 
+    async function getProfilePic(id){
+        const doesExist = doc(projectFireStore, 'profile-pictures', id)
+        const elem = await getDoc(doesExist);
+        return elem.data();
+    }
+
     // function deleteComment(postId, commentId){
     //     // return deleteDoc(doc(projectFireStore,'comments',id));
     //     const collectionRef = doc(projectFireStore, 'posts', postId);
@@ -162,6 +168,7 @@ export function AuthProvider({children}) {
         changeUsername,
         getUserData,
         setChanges,
+        getProfilePic,
     }
 
     return (
